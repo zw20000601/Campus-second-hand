@@ -1,0 +1,62 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: campus-market-server
+  profiles:
+    active: dev
+
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+  # JSON 配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.campus.market.module.**.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: auto
+
+# Sa-Token 配置
+sa-token:
+  token-name: Authorization
+  timeout: 604800           # token 有效期（秒）7天
+  active-timeout: -1        # token 最低活跃时间（-1表示不限制）
+  is-concurrent: true       # 是否允许同一账号多地登录
+  is-share: true
+  token-style: uuid
+  is-log: false
+  is-read-header: true      # 从请求头读取 token
+  is-read-cookie: false     # 不从 Cookie 读取
+
+# Knife4j 配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# 文件上传本地存储配置
+upload:
+  path: ./uploads
+  url-prefix: /uploads
+  allowed-types: jpg,jpeg,png,gif,webp
+  max-size: 5242880  # 5MB
