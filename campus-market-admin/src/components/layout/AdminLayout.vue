@@ -70,18 +70,24 @@ const route = useRoute()
 const adminStore = useAdminStore()
 const collapsed = ref(false)
 
+const isSuperAdmin = computed(() => adminStore.adminInfo?.isSuperAdmin === true)
+
 const icon = (emoji: string) => () => h('span', { style: 'font-size:16px' }, emoji)
 
-const menuOptions = [
-  { label: '数据看板', key: 'dashboard', icon: icon('📊') },
-  { label: '商品管理', key: 'products', icon: icon('📦') },
-  { label: '用户管理', key: 'users', icon: icon('👥') },
-  { label: '举报管理', key: 'reports', icon: icon('⚠️') },
-  { label: '分类管理', key: 'categories', icon: icon('🏷️') },
-  { label: '学校管理', key: 'schools', icon: icon('🏫') },
-  { label: '校区管理', key: 'campuses', icon: icon('📍') },
-  { label: '公告管理', key: 'notices', icon: icon('📢') },
+const ALL_MENU = [
+  { label: '数据看板', key: 'dashboard', icon: icon('📊'), superOnly: false },
+  { label: '商品管理', key: 'products', icon: icon('📦'), superOnly: false },
+  { label: '用户管理', key: 'users', icon: icon('👥'), superOnly: false },
+  { label: '举报管理', key: 'reports', icon: icon('⚠️'), superOnly: false },
+  { label: '分类管理', key: 'categories', icon: icon('🏷️'), superOnly: true },
+  { label: '学校管理', key: 'schools', icon: icon('🏫'), superOnly: true },
+  { label: '校区管理', key: 'campuses', icon: icon('📍'), superOnly: true },
+  { label: '公告管理', key: 'notices', icon: icon('📢'), superOnly: false },
 ]
+
+const menuOptions = computed(() =>
+  ALL_MENU.filter(item => !item.superOnly || isSuperAdmin.value)
+)
 
 const titleMap: Record<string, string> = {
   dashboard: '数据看板',

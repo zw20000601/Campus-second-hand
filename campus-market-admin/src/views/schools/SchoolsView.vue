@@ -2,7 +2,7 @@
   <div class="schools-view">
     <div class="page-header">
       <h2 class="page-title">学校管理</h2>
-      <n-button type="primary" @click="openAdd">+ 新增学校</n-button>
+      <n-button v-if="isSuperAdmin" type="primary" @click="openAdd">+ 新增学校</n-button>
     </div>
 
     <n-data-table :columns="columns" :data="schools" :loading="loading" size="small"
@@ -32,11 +32,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
+import { ref, computed, h, onMounted } from 'vue'
 import { NButton, NDataTable, NModal, NForm, NFormItem, NInput, NInputNumber, useMessage } from 'naive-ui'
 import { schoolAdminApi } from '@/api'
+import { useAdminStore } from '@/stores/admin'
 
 const message = useMessage()
+const adminStore = useAdminStore()
+const isSuperAdmin = computed(() => adminStore.adminInfo?.isSuperAdmin === true)
 const schools = ref([])
 const loading = ref(false)
 const total = ref(0)
@@ -52,10 +55,12 @@ const columns = [
   { title: '排序', key: 'sort', width: 70 },
   {
     title: '操作', key: 'actions', width: 120,
-    render: (row: any) => h('div', { style: 'display:flex;gap:6px' }, [
-      h(NButton, { size: 'tiny', onClick: () => openEdit(row) }, () => '编辑'),
-      h(NButton, { size: 'tiny', type: 'error', ghost: true, onClick: () => handleDelete(row.id) }, () => '删除'),
-    ])
+    render: (row: any) => isSuperAdmin.value
+      ? h('div', { style: 'display:flex;gap:6px' }, [
+          h(NButton, { size: 'tiny', onClick: () => openEdit(row) }, () => '编辑'),
+          h(NButton, { size: 'tiny', type: 'error', ghost: true, onClick: () => handleDelete(row.id) }, () => '删除'),
+        ])
+      : null,
   },
 ]
 
@@ -71,16 +76,24 @@ function openAdd() { editId.value = null; form.value = { name: '', province: '',
 function openEdit(row: any) { editId.value = row.id; form.value = { name: row.name, province: row.province, city: row.city, sort: row.sort }; showModal.value = true }
 
 async function handleSave() {
-  editId.value ? await schoolAdminApi.update(editId.value, form.value) : await schoolAdminApi.add(form.value)
-  message.success('保存成功')
-  showModal.value = false
-  load()
+  try {
+    editId.value ? await schoolAdminApi.update(editId.value, form.value) : await schoolAdminApi.add(form.value)
+    message.success('保存成功')
+    showModal.value = false
+    load()
+  } catch (e: any) {
+    message.error(e.message || '操作失败')
+  }
 }
 
 async function handleDelete(id: number) {
-  await schoolAdminApi.delete(id)
-  message.success('已删除')
-  load()
+  try {
+    await schoolAdminApi.delete(id)
+    message.success('已删除')
+    load()
+  } catch (e: any) {
+    message.error(e.message || '删除失败')
+  }
 }
 
 onMounted(load)

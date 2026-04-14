@@ -2,7 +2,7 @@
   <div class="campuses-view">
     <div class="page-header">
       <h2 class="page-title">校区管理</h2>
-      <n-button type="primary" :disabled="!selectedSchoolId" @click="openAdd">+ 新增校区</n-button>
+      <n-button v-if="isSuperAdmin" type="primary" :disabled="!selectedSchoolId" @click="openAdd">+ 新增校区</n-button>
     </div>
 
     <!-- 学校选择 -->
@@ -45,11 +45,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
+import { ref, computed, h, onMounted } from 'vue'
 import { NButton, NDataTable, NModal, NForm, NFormItem, NInput, NInputNumber, NSelect, useMessage } from 'naive-ui'
 import { schoolAdminApi, campusAdminApi } from '@/api'
+import { useAdminStore } from '@/stores/admin'
 
 const message = useMessage()
+const adminStore = useAdminStore()
+const isSuperAdmin = computed(() => adminStore.adminInfo?.isSuperAdmin === true)
 const schools = ref<any[]>([])
 const campuses = ref<any[]>([])
 const loading = ref(false)
@@ -68,10 +71,12 @@ const columns = [
   { title: '排序', key: 'sort', width: 70 },
   {
     title: '操作', key: 'actions', width: 120,
-    render: (row: any) => h('div', { style: 'display:flex;gap:6px' }, [
-      h(NButton, { size: 'tiny', onClick: () => openEdit(row) }, () => '编辑'),
-      h(NButton, { size: 'tiny', type: 'error', ghost: true, onClick: () => handleDelete(row.id) }, () => '删除'),
-    ])
+    render: (row: any) => isSuperAdmin.value
+      ? h('div', { style: 'display:flex;gap:6px' }, [
+          h(NButton, { size: 'tiny', onClick: () => openEdit(row) }, () => '编辑'),
+          h(NButton, { size: 'tiny', type: 'error', ghost: true, onClick: () => handleDelete(row.id) }, () => '删除'),
+        ])
+      : null,
   },
 ]
 
@@ -128,9 +133,13 @@ async function handleSave() {
 }
 
 async function handleDelete(id: number) {
-  await campusAdminApi.delete(id)
-  message.success('已删除')
-  loadCampuses(selectedSchoolId.value!)
+  try {
+    await campusAdminApi.delete(id)
+    message.success('已删除')
+    loadCampuses(selectedSchoolId.value!)
+  } catch (e: any) {
+    message.error(e.message || '删除失败')
+  }
 }
 
 onMounted(loadSchools)

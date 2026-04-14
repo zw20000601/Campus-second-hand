@@ -2,7 +2,7 @@
   <div class="categories-view">
     <div class="page-header">
       <h2 class="page-title">分类管理</h2>
-      <n-button type="primary" @click="openAdd">+ 新增分类</n-button>
+      <n-button v-if="isSuperAdmin" type="primary" @click="openAdd">+ 新增分类</n-button>
     </div>
     <n-data-table :columns="columns" :data="categories" :loading="loading" size="small" />
 
@@ -27,12 +27,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
+import { ref, computed, h, onMounted } from 'vue'
 import { NButton, NDataTable, NModal, NForm, NFormItem, NInput, NInputNumber, useMessage, useDialog } from 'naive-ui'
 import { categoryAdminApi } from '@/api'
+import { useAdminStore } from '@/stores/admin'
 
 const message = useMessage()
 const dialog = useDialog()
+const adminStore = useAdminStore()
+const isSuperAdmin = computed(() => adminStore.adminInfo?.isSuperAdmin === true)
 const categories = ref([])
 const loading = ref(false)
 const showModal = ref(false)
@@ -46,10 +49,12 @@ const columns = [
   { title: '排序', key: 'sort', width: 80 },
   {
     title: '操作', key: 'actions', width: 120,
-    render: (row: any) => h('div', { style: 'display:flex;gap:6px' }, [
-      h(NButton, { size: 'tiny', onClick: () => openEdit(row) }, () => '编辑'),
-      h(NButton, { size: 'tiny', type: 'error', ghost: true, onClick: () => handleDelete(row.id) }, () => '删除'),
-    ])
+    render: (row: any) => isSuperAdmin.value
+      ? h('div', { style: 'display:flex;gap:6px' }, [
+          h(NButton, { size: 'tiny', onClick: () => openEdit(row) }, () => '编辑'),
+          h(NButton, { size: 'tiny', type: 'error', ghost: true, onClick: () => handleDelete(row.id) }, () => '删除'),
+        ])
+      : null,
   },
 ]
 
@@ -73,14 +78,18 @@ function openEdit(row: any) {
 }
 
 async function handleSave() {
-  if (editId.value) {
-    await categoryAdminApi.update(editId.value, form.value)
-  } else {
-    await categoryAdminApi.add(form.value)
+  try {
+    if (editId.value) {
+      await categoryAdminApi.update(editId.value, form.value)
+    } else {
+      await categoryAdminApi.add(form.value)
+    }
+    message.success('保存成功')
+    showModal.value = false
+    load()
+  } catch (e: any) {
+    message.error(e.message || '操作失败')
   }
-  message.success('保存成功')
-  showModal.value = false
-  load()
 }
 
 function handleDelete(id: number) {
@@ -88,9 +97,13 @@ function handleDelete(id: number) {
     title: '确认删除', content: '确认删除该分类？',
     positiveText: '删除',
     onPositiveClick: async () => {
-      await categoryAdminApi.delete(id)
-      message.success('已删除')
-      load()
+      try {
+        await categoryAdminApi.delete(id)
+        message.success('已删除')
+        load()
+      } catch (e: any) {
+        message.error(e.message || '删除失败')
+      }
     }
   })
 }
