@@ -16,6 +16,7 @@ export const dashboardApi = {
 // ===== 商品管理 =====
 export const productAdminApi = {
   list: (params: any) => request.get('/admin/api/products', { params }),
+  getDetail: (id: number) => request.get(`/admin/api/products/${id}`),
   audit: (id: number, data: { auditStatus: number; remark?: string }) =>
     request.put(`/admin/api/products/${id}/audit`, data),
   offShelf: (id: number) => request.put(`/admin/api/products/${id}/off-shelf`),

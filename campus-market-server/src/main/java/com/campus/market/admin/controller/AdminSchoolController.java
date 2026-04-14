@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.campus.market.common.page.PageVO;
 import com.campus.market.common.result.R;
+import com.campus.market.common.satoken.StpAdminUtil;
 import com.campus.market.module.school.entity.Campus;
 import com.campus.market.module.school.entity.School;
 import com.campus.market.module.school.mapper.CampusMapper;
@@ -47,6 +48,7 @@ public class AdminSchoolController {
     @Operation(summary = "新增学校")
     @PostMapping("/schools")
     public R<School> addSchool(@RequestBody @Valid SchoolRequest req) {
+        StpAdminUtil.checkSuperAdmin();
         School school = new School();
         school.setName(req.getName());
         school.setCity(req.getCity());
@@ -60,6 +62,7 @@ public class AdminSchoolController {
     @Operation(summary = "更新学校")
     @PutMapping("/schools/{id}")
     public R<Void> updateSchool(@PathVariable Long id, @RequestBody SchoolRequest req) {
+        StpAdminUtil.checkSuperAdmin();
         School school = schoolMapper.selectById(id);
         if (school == null) return R.fail("学校不存在");
         if (req.getName() != null) school.setName(req.getName());
@@ -74,6 +77,7 @@ public class AdminSchoolController {
     @Operation(summary = "删除学校")
     @DeleteMapping("/schools/{id}")
     public R<Void> deleteSchool(@PathVariable Long id) {
+        StpAdminUtil.checkSuperAdmin();
         schoolMapper.deleteById(id);
         return R.ok();
     }
@@ -92,6 +96,7 @@ public class AdminSchoolController {
     @Operation(summary = "新增校区")
     @PostMapping("/campuses")
     public R<Campus> addCampus(@RequestBody @Valid CampusRequest req) {
+        StpAdminUtil.checkSuperAdmin();
         Campus campus = new Campus();
         campus.setSchoolId(req.getSchoolId());
         campus.setName(req.getName());
@@ -105,6 +110,7 @@ public class AdminSchoolController {
     @Operation(summary = "更新校区")
     @PutMapping("/campuses/{id}")
     public R<Void> updateCampus(@PathVariable Long id, @RequestBody CampusRequest req) {
+        StpAdminUtil.checkSuperAdmin();
         Campus campus = campusMapper.selectById(id);
         if (campus == null) return R.fail("校区不存在");
         if (req.getName() != null) campus.setName(req.getName());
@@ -118,6 +124,7 @@ public class AdminSchoolController {
     @Operation(summary = "删除校区")
     @DeleteMapping("/campuses/{id}")
     public R<Void> deleteCampus(@PathVariable Long id) {
+        StpAdminUtil.checkSuperAdmin();
         campusMapper.deleteById(id);
         return R.ok();
     }

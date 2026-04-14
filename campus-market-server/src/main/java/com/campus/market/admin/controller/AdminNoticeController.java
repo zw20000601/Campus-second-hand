@@ -1,7 +1,7 @@
 package com.campus.market.admin.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.campus.market.common.satoken.StpAdminUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.campus.market.common.page.PageVO;
@@ -48,8 +48,7 @@ public class AdminNoticeController {
     @Operation(summary = "新增公告")
     @PostMapping
     public R<Notice> add(@RequestBody @Valid NoticeRequest req) {
-        String loginId = StpUtil.getLoginId().toString();
-        Long adminId = Long.parseLong(loginId.replace("admin:", ""));
+        Long adminId = StpAdminUtil.getLoginIdAsLong();
 
         Notice notice = new Notice();
         notice.setTitle(req.getTitle());

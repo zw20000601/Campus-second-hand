@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.market.common.result.R;
 import com.campus.market.module.category.entity.ProductCategory;
 import com.campus.market.module.category.mapper.ProductCategoryMapper;
+import com.campus.market.common.satoken.StpAdminUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,6 +37,7 @@ public class AdminCategoryController {
     @Operation(summary = "新增分类")
     @PostMapping
     public R<ProductCategory> add(@RequestBody @Valid CategoryRequest req) {
+        StpAdminUtil.checkSuperAdmin();
         ProductCategory category = new ProductCategory();
         category.setName(req.getName());
         category.setIcon(req.getIcon());
@@ -50,6 +52,7 @@ public class AdminCategoryController {
     @Operation(summary = "更新分类")
     @PutMapping("/{id}")
     public R<Void> update(@PathVariable Long id, @RequestBody CategoryRequest req) {
+        StpAdminUtil.checkSuperAdmin();
         ProductCategory category = categoryMapper.selectById(id);
         if (category == null) return R.fail("分类不存在");
         if (req.getName() != null) category.setName(req.getName());
@@ -63,6 +66,7 @@ public class AdminCategoryController {
     @Operation(summary = "删除分类")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable Long id) {
+        StpAdminUtil.checkSuperAdmin();
         categoryMapper.deleteById(id);
         return R.ok();
     }

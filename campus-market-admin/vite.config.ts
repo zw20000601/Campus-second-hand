@@ -10,7 +10,11 @@ export default defineConfig({
   server: {
     port: 3001,
     proxy: {
-      '/admin': {
+      '/admin/auth': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/admin/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       },

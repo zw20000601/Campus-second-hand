@@ -17,6 +17,7 @@ const router = createRouter({
         { path: 'reports', name: 'reports', component: () => import('@/views/reports/ReportsView.vue') },
         { path: 'categories', name: 'categories', component: () => import('@/views/categories/CategoriesView.vue') },
         { path: 'schools', name: 'schools', component: () => import('@/views/schools/SchoolsView.vue') },
+        { path: 'campuses', name: 'campuses', component: () => import('@/views/campuses/CampusesView.vue') },
         { path: 'notices', name: 'notices', component: () => import('@/views/notices/NoticesView.vue') },
       ],
     },

@@ -20,6 +20,36 @@
       size="small"
     />
 
+    <!-- 商品详情抽屉 -->
+    <n-drawer v-model:show="showDetailDrawer" :width="480" placement="right">
+      <n-drawer-content :title="detail?.title || '商品详情'" closable>
+        <template v-if="detail">
+          <div class="detail-images" v-if="detail.images?.length">
+            <img v-for="img in detail.images" :key="img" :src="img" class="detail-img" />
+          </div>
+          <n-descriptions :column="1" label-placement="left" bordered size="small" class="detail-desc">
+            <n-descriptions-item label="商品ID">{{ detail.id }}</n-descriptions-item>
+            <n-descriptions-item label="发布者">{{ detail.userNickname }}</n-descriptions-item>
+            <n-descriptions-item label="价格">¥{{ detail.price }}</n-descriptions-item>
+            <n-descriptions-item label="原价" v-if="detail.originalPrice">¥{{ detail.originalPrice }}</n-descriptions-item>
+            <n-descriptions-item label="分类">{{ detail.categoryName }}</n-descriptions-item>
+            <n-descriptions-item label="学校">{{ detail.schoolName }}</n-descriptions-item>
+            <n-descriptions-item label="校区" v-if="detail.campusName">{{ detail.campusName }}</n-descriptions-item>
+            <n-descriptions-item label="成色">{{ detail.conditionDesc }}</n-descriptions-item>
+            <n-descriptions-item label="交易方式">{{ detail.tradeTypeDesc }}</n-descriptions-item>
+            <n-descriptions-item label="交易地点" v-if="detail.tradeLocation">{{ detail.tradeLocation }}</n-descriptions-item>
+            <n-descriptions-item label="浏览/收藏">{{ detail.viewCount }} / {{ detail.favoriteCount }}</n-descriptions-item>
+            <n-descriptions-item label="发布时间">{{ detail.createdAt }}</n-descriptions-item>
+          </n-descriptions>
+          <div class="detail-body" v-if="detail.description">
+            <div class="detail-body-label">商品描述</div>
+            <div class="detail-body-text">{{ detail.description }}</div>
+          </div>
+        </template>
+        <n-spin v-else size="large" style="display:flex;justify-content:center;padding:40px" />
+      </n-drawer-content>
+    </n-drawer>
+
     <!-- 审核弹窗 -->
     <n-modal v-model:show="showAuditModal" title="审核商品" preset="card" style="max-width: 440px">
       <n-form label-placement="top">
@@ -45,7 +75,8 @@
 import { ref, onMounted, h } from 'vue'
 import {
   NInput, NSelect, NButton, NDataTable, NModal, NForm, NFormItem,
-  NRadioGroup, NRadio, NTag, useMessage
+  NRadioGroup, NRadio, NTag, NDrawer, NDrawerContent, NDescriptions,
+  NDescriptionsItem, NSpin, useMessage
 } from 'naive-ui'
 import { productAdminApi } from '@/api'
 
@@ -57,6 +88,8 @@ const showAuditModal = ref(false)
 const submitting = ref(false)
 const currentProductId = ref<number>(0)
 const auditForm = ref({ auditStatus: 1, remark: '' })
+const showDetailDrawer = ref(false)
+const detail = ref<any>(null)
 
 const params = ref({
   pageNum: 1,
@@ -92,8 +125,9 @@ const columns = [
   {
     title: '操作',
     key: 'actions',
-    width: 160,
+    width: 200,
     render: (row: any) => h('div', { style: 'display:flex;gap:6px' }, [
+      h(NButton, { size: 'tiny', onClick: () => openDetail(row.id) }, () => '详情'),
       row.status === 0 ? h(NButton, { size: 'tiny', type: 'primary', onClick: () => openAudit(row.id) }, () => '审核') : null,
       row.status === 1 ? h(NButton, { size: 'tiny', type: 'warning', onClick: () => handleOffShelf(row.id) }, () => '下架') : null,
     ]),
@@ -109,6 +143,13 @@ async function load() {
   } finally {
     loading.value = false
   }
+}
+
+async function openDetail(id: number) {
+  detail.value = null
+  showDetailDrawer.value = true
+  const res: any = await productAdminApi.getDetail(id)
+  detail.value = res.data
 }
 
 function openAudit(id: number) {
@@ -149,4 +190,9 @@ onMounted(load)
 .products-view { background: #fff; border-radius: 12px; padding: 20px; }
 .page-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
 .filter-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.detail-images { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.detail-img { width: 100px; height: 100px; object-fit: cover; border-radius: 6px; }
+.detail-desc { margin-bottom: 16px; }
+.detail-body-label { font-weight: 600; margin: 12px 0 6px; }
+.detail-body-text { white-space: pre-wrap; font-size: 14px; color: #555; line-height: 1.6; }
 </style>

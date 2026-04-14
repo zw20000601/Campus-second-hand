@@ -1,7 +1,7 @@
 package com.campus.market.admin.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.campus.market.common.satoken.StpAdminUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.campus.market.common.page.PageVO;
@@ -10,8 +10,10 @@ import com.campus.market.module.product.entity.Product;
 import com.campus.market.module.product.mapper.ProductMapper;
 import com.campus.market.module.product.service.ProductService;
 import com.campus.market.module.product.vo.ProductListVO;
+import com.campus.market.module.product.vo.ProductVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -34,6 +36,14 @@ public class AdminProductController {
 
     private final ProductMapper productMapper;
     private final ProductService productService;
+
+    @Operation(summary = "商品详情（后台）")
+    @GetMapping("/{id}")
+    public R<ProductVO> detail(@PathVariable Long id) {
+        ProductVO vo = productService.getDetail(id);
+        if (vo == null) return R.fail("商品不存在");
+        return R.ok(vo);
+    }
 
     @Operation(summary = "商品列表（含所有状态）")
     @GetMapping
@@ -64,9 +74,8 @@ public class AdminProductController {
 
     @Operation(summary = "审核商品")
     @PutMapping("/{id}/audit")
-    public R<Void> audit(@PathVariable Long id, @RequestBody AuditRequest req) {
-        String loginId = StpUtil.getLoginId().toString();
-        Long adminId = Long.parseLong(loginId.replace("admin:", ""));
+    public R<Void> audit(@PathVariable Long id, @RequestBody @Valid AuditRequest req) {
+        Long adminId = StpAdminUtil.getLoginIdAsLong();
 
         Product product = productMapper.selectById(id);
         if (product == null) return R.fail("商品不存在");

@@ -70,14 +70,17 @@ const route = useRoute()
 const adminStore = useAdminStore()
 const collapsed = ref(false)
 
+const icon = (emoji: string) => () => h('span', { style: 'font-size:16px' }, emoji)
+
 const menuOptions = [
-  { label: '数据看板', key: 'dashboard', icon: () => '📊' },
-  { label: '商品管理', key: 'products', icon: () => '📦' },
-  { label: '用户管理', key: 'users', icon: () => '👥' },
-  { label: '举报管理', key: 'reports', icon: () => '⚠️' },
-  { label: '分类管理', key: 'categories', icon: () => '🏷️' },
-  { label: '学校管理', key: 'schools', icon: () => '🏫' },
-  { label: '公告管理', key: 'notices', icon: () => '📢' },
+  { label: '数据看板', key: 'dashboard', icon: icon('📊') },
+  { label: '商品管理', key: 'products', icon: icon('📦') },
+  { label: '用户管理', key: 'users', icon: icon('👥') },
+  { label: '举报管理', key: 'reports', icon: icon('⚠️') },
+  { label: '分类管理', key: 'categories', icon: icon('🏷️') },
+  { label: '学校管理', key: 'schools', icon: icon('🏫') },
+  { label: '校区管理', key: 'campuses', icon: icon('📍') },
+  { label: '公告管理', key: 'notices', icon: icon('📢') },
 ]
 
 const titleMap: Record<string, string> = {
@@ -87,6 +90,7 @@ const titleMap: Record<string, string> = {
   reports: '举报管理',
   categories: '分类管理',
   schools: '学校管理',
+  campuses: '校区管理',
   notices: '公告管理',
 }
 

@@ -1,7 +1,7 @@
 package com.campus.market.admin.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.campus.market.common.satoken.StpAdminUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.campus.market.common.page.PageVO;
@@ -10,6 +10,8 @@ import com.campus.market.module.report.entity.Report;
 import com.campus.market.module.report.mapper.ReportMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +46,8 @@ public class AdminReportController {
 
     @Operation(summary = "处理举报")
     @PutMapping("/{id}/handle")
-    public R<Void> handle(@PathVariable Long id, @RequestBody HandleRequest req) {
-        String loginId = StpUtil.getLoginId().toString();
-        Long adminId = Long.parseLong(loginId.replace("admin:", ""));
+    public R<Void> handle(@PathVariable Long id, @RequestBody @Valid HandleRequest req) {
+        Long adminId = StpAdminUtil.getLoginIdAsLong();
 
         Report update = new Report();
         update.setId(id);
@@ -60,6 +61,7 @@ public class AdminReportController {
 
     @Data
     public static class HandleRequest {
+        @NotNull(message = "处理状态不能为空")
         private Integer status; // 1=已处理 2=已忽略
         private String remark;
     }
