@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +62,7 @@ public class AdminSchoolController {
 
     @Operation(summary = "更新学校")
     @PutMapping("/schools/{id}")
-    public R<Void> updateSchool(@PathVariable Long id, @RequestBody SchoolRequest req) {
+    public R<Void> updateSchool(@PathVariable Long id, @RequestBody @Valid SchoolRequest req) {
         StpAdminUtil.checkSuperAdmin();
         School school = schoolMapper.selectById(id);
         if (school == null) return R.fail("学校不存在");
@@ -109,7 +110,7 @@ public class AdminSchoolController {
 
     @Operation(summary = "更新校区")
     @PutMapping("/campuses/{id}")
-    public R<Void> updateCampus(@PathVariable Long id, @RequestBody CampusRequest req) {
+    public R<Void> updateCampus(@PathVariable Long id, @RequestBody @Valid CampusRequest req) {
         StpAdminUtil.checkSuperAdmin();
         Campus campus = campusMapper.selectById(id);
         if (campus == null) return R.fail("校区不存在");
@@ -140,7 +141,7 @@ public class AdminSchoolController {
 
     @Data
     public static class CampusRequest {
-        private Long schoolId;
+        @NotNull(message = "schoolId 不能为空") private Long schoolId;
         @NotBlank private String name;
         private String address;
         private Integer sort;

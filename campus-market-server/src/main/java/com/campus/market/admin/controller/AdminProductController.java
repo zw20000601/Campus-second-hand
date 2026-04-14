@@ -14,6 +14,8 @@ import com.campus.market.module.product.vo.ProductVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -110,7 +112,7 @@ public class AdminProductController {
 
     @Data
     public static class AuditRequest {
-        @NotNull
+        @NotNull @Min(1) @Max(2)
         private Integer auditStatus; // 1=通过 2=拒绝
         @Size(max = 200)
         private String remark;

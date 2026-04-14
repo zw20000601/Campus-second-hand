@@ -51,7 +51,7 @@ public class AdminCategoryController {
 
     @Operation(summary = "更新分类")
     @PutMapping("/{id}")
-    public R<Void> update(@PathVariable Long id, @RequestBody CategoryRequest req) {
+    public R<Void> update(@PathVariable Long id, @RequestBody @Valid CategoryRequest req) {
         StpAdminUtil.checkSuperAdmin();
         ProductCategory category = categoryMapper.selectById(id);
         if (category == null) return R.fail("分类不存在");

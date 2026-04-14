@@ -11,8 +11,12 @@ import com.campus.market.module.user.service.UserService;
 import com.campus.market.module.user.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
  * 后台用户管理接口
  */
 @Tag(name = "后台-用户管理", description = "用户封禁/查询")
+@Validated
 @RestController
 @RequestMapping("/admin/api/users")
 @RequiredArgsConstructor
@@ -56,7 +61,8 @@ public class AdminUserController {
 
     @Operation(summary = "封禁/解封用户")
     @PutMapping("/{id}/status")
-    public R<Void> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
+    public R<Void> updateStatus(@PathVariable Long id,
+                                @RequestParam @NotNull @Min(0) @Max(1) Integer status) {
         User update = new User();
         update.setId(id);
         update.setStatus(status);

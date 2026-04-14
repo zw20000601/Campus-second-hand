@@ -68,7 +68,7 @@ public class AdminNoticeController {
 
     @Operation(summary = "更新公告")
     @PutMapping("/{id}")
-    public R<Void> update(@PathVariable Long id, @RequestBody NoticeRequest req) {
+    public R<Void> update(@PathVariable Long id, @RequestBody @Valid NoticeRequest req) {
         Notice notice = noticeMapper.selectById(id);
         if (notice == null) return R.fail("公告不存在");
         if (req.getTitle() != null) notice.setTitle(req.getTitle());

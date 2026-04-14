@@ -11,6 +11,8 @@ import com.campus.market.module.report.mapper.ReportMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -61,7 +63,7 @@ public class AdminReportController {
 
     @Data
     public static class HandleRequest {
-        @NotNull(message = "处理状态不能为空")
+        @NotNull(message = "处理状态不能为空") @Min(1) @Max(2)
         private Integer status; // 1=已处理 2=已忽略
         private String remark;
     }
