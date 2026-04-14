@@ -48,6 +48,7 @@ async function handleLogin() {
       username: res.data.username,
       nickname: res.data.nickname,
       role: res.data.role,
+      isSuperAdmin: res.data.isSuperAdmin,
     })
     message.success('登录成功')
     router.push({ name: 'dashboard' })
