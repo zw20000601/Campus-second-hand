@@ -2,6 +2,7 @@ package com.campus.market.admin.controller;
 
 import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.campus.market.admin.entity.AdminUser;
 import com.campus.market.admin.mapper.AdminUserMapper;
 import com.campus.market.common.exception.BusinessException;
@@ -39,10 +40,11 @@ public class AdminAuthController {
     @PostMapping("/login")
     public R<Map<String, Object>> login(@RequestBody @Valid AdminLoginRequest req,
                                          HttpServletRequest request) {
-        // 查找管理员
+        // 查找管理员（显式 select password，因 AdminUser.password 标注了 select=false）
         AdminUser admin = adminUserMapper.selectOne(
-                new LambdaQueryWrapper<AdminUser>()
-                        .eq(AdminUser::getUsername, req.getUsername()));
+                new QueryWrapper<AdminUser>()
+                        .select("id", "username", "password", "nickname", "role", "status", "school_id")
+                        .eq("username", req.getUsername()));
         if (admin == null) {
             throw new BusinessException(ResultCode.USER_PASSWORD_ERROR);
         }

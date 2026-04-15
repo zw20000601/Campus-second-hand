@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -79,6 +80,24 @@ public class GlobalExceptionHandler {
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .collect(Collectors.joining("; "));
         log.warn("参数绑定失败: {}", message);
+        return R.fail(ResultCode.PARAM_ERROR.getCode(), message);
+    }
+
+    /**
+     * 参数校验异常（@RequestParam / @PathVariable + @Validated on class）
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public R<Void> handleConstraintViolationException(ConstraintViolationException e) {
+        String message = e.getConstraintViolations().stream()
+                .map(v -> {
+                    String path = v.getPropertyPath().toString();
+                    // 去掉方法名前缀，只保留参数名
+                    int dot = path.lastIndexOf('.');
+                    return (dot >= 0 ? path.substring(dot + 1) : path) + ": " + v.getMessage();
+                })
+                .collect(Collectors.joining("; "));
+        log.warn("参数校验失败: {}", message);
         return R.fail(ResultCode.PARAM_ERROR.getCode(), message);
     }
 

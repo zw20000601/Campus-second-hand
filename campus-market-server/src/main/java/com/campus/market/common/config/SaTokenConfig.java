@@ -1,6 +1,7 @@
 package com.campus.market.common.config;
 
 import cn.dev33.satoken.interceptor.SaInterceptor;
+import cn.dev33.satoken.router.SaHttpMethod;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
 import com.campus.market.common.satoken.StpAdminUtil;
@@ -66,17 +67,17 @@ public class SaTokenConfig implements WebMvcConfigurer {
 
             // 举报（POST /api/reports）
             SaRouter.match("/api/reports")
-                    .notMatch(r -> "GET".equals(r.getMethod()))
+                    .notMatch(SaHttpMethod.GET)
                     .check(r -> StpUtil.checkLogin());
 
             // 商品写操作（POST/PUT/DELETE /api/products/**）
             SaRouter.match("/api/products", "/api/products/**")
-                    .notMatch(r -> "GET".equals(r.getMethod()))
+                    .notMatch(SaHttpMethod.GET)
                     .check(r -> StpUtil.checkLogin());
 
             // 留言发布（POST /api/products/*/messages）
             SaRouter.match("/api/products/*/messages")
-                    .notMatch(r -> "GET".equals(r.getMethod()))
+                    .notMatch(SaHttpMethod.GET)
                     .check(r -> StpUtil.checkLogin());
 
         })).addPathPatterns("/**")

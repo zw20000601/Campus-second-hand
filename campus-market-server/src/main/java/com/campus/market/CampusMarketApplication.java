@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 校园二手交易平台 - 启动类
  */
 @SpringBootApplication
-@MapperScan("com.campus.market.module.**.mapper")
+@MapperScan({"com.campus.market.module.**.mapper", "com.campus.market.admin.mapper"})
 public class CampusMarketApplication {
 
     public static void main(String[] args) {
