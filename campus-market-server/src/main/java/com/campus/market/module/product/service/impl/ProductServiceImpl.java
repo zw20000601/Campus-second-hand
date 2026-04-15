@@ -2,6 +2,7 @@ package com.campus.market.module.product.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -126,6 +127,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         product.setAuditStatus(0);
         product.setAuditRemark(null);
         updateById(product);
+        // updateById 默认跳过 null 字段，需显式将 auditRemark 清空
+        update(new LambdaUpdateWrapper<Product>()
+                .eq(Product::getId, id)
+                .set(Product::getAuditRemark, null));
 
         // 重新保存图片
         productImageMapper.delete(new LambdaQueryWrapper<ProductImage>()
