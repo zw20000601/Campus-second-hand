@@ -34,6 +34,9 @@
             <span class="meta-item">👁 {{ p.viewCount }} 浏览</span>
             <span class="meta-item">{{ p.createdAt }}</span>
           </div>
+          <div v-if="p.status === 4 && p.auditRemark" class="audit-remark">
+            拒绝原因：{{ p.auditRemark }}
+          </div>
         </div>
         <div class="product-actions">
           <n-button v-if="p.status === 1" size="small" @click="handleOffShelf(p.id)">下架</n-button>
@@ -148,6 +151,7 @@ onMounted(loadProducts)
 .product-price { font-size: 16px; font-weight: 700; color: #FF4B6E; margin-bottom: 6px; }
 .product-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .meta-item { font-size: 12px; color: var(--color-text-secondary); }
+.audit-remark { font-size: 12px; color: #d03050; margin-top: 4px; }
 .product-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 .pagination { display: flex; justify-content: center; margin-top: 24px; }
 .loading-wrap { display: flex; justify-content: center; padding: 40px; }

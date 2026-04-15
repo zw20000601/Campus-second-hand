@@ -33,4 +33,7 @@ public class ProductListVO {
 
     @Schema(description = "发布者头像")
     private String userAvatar;
+
+    @Schema(description = "审核拒绝原因（status=4 时有值）")
+    private String auditRemark;
 }

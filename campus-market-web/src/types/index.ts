@@ -129,6 +129,7 @@ export interface ProductListVO {
   createdAt: string
   userNickname: string
   userAvatar: string
+  auditRemark?: string
 }
 
 export interface ProductVO extends ProductListVO {
