@@ -72,8 +72,8 @@ public class UploadController {
         String newFileName = UUID.randomUUID().toString().replace("-", "") + "." + extension;
         String relativePath = datePath + "/" + newFileName;
 
-        // 创建目录并保存文件
-        File destDir = new File(uploadPath + "/" + datePath);
+        // 创建目录并保存文件（使用绝对路径避免 Tomcat 工作目录干扰）
+        File destDir = new File(uploadPath + "/" + datePath).getAbsoluteFile();
         if (!destDir.exists()) {
             destDir.mkdirs();
         }

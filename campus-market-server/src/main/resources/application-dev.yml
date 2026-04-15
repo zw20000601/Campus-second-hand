@@ -24,6 +24,10 @@ spring:
           max-idle: 8
           max-active: 8
 
+upload:
+  path: /home/user/Campus-second-hand/campus-market-server/uploads
+  url-prefix: /uploads
+
 # 开发环境日志
 logging:
   level:

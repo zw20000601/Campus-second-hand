@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.SaLoginConfig;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.campus.market.common.exception.BusinessException;
 import com.campus.market.common.result.ResultCode;
@@ -70,9 +71,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public LoginVO login(LoginDTO dto, String clientIp) {
-        // 查找用户
-        User user = getOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, dto.getUsername()));
+        // 查找用户（显式 select password，因 User.password 标注了 select=false）
+        User user = getOne(new QueryWrapper<User>()
+                .select("id", "username", "password", "nickname", "avatar", "gender", "bio",
+                        "school_id", "campus_id", "verified", "status", "last_login_at", "last_login_ip")
+                .eq("username", dto.getUsername()));
         if (user == null) {
             throw new BusinessException(ResultCode.USER_PASSWORD_ERROR);
         }

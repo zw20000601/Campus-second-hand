@@ -23,6 +23,8 @@ import com.campus.market.module.school.entity.Campus;
 import com.campus.market.module.school.entity.School;
 import com.campus.market.module.school.mapper.CampusMapper;
 import com.campus.market.module.school.mapper.SchoolMapper;
+import com.campus.market.module.favorite.entity.Favorite;
+import com.campus.market.module.favorite.mapper.FavoriteMapper;
 import com.campus.market.module.user.entity.User;
 import com.campus.market.module.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements ProductService {
 
     private final ProductImageMapper productImageMapper;
+    private final FavoriteMapper favoriteMapper;
     private final UserMapper userMapper;
     private final SchoolMapper schoolMapper;
     private final CampusMapper campusMapper;
@@ -179,6 +182,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         if (dto.getKeyword() != null && !dto.getKeyword().isEmpty()) {
             wrapper.like(Product::getTitle, dto.getKeyword());
         }
+        if (dto.getStatus() != null) {
+            wrapper.eq(Product::getStatus, dto.getStatus());
+        }
 
         IPage<Product> page = page(
                 new Page<>(dto.getPageNum(), dto.getPageSize()), wrapper);
@@ -251,11 +257,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             vo.setUserAvatar(user.getAvatar());
         }
 
-        // 是否已收藏（登录用户）
+        // 是否已收藏（查询当前登录用户的收藏记录）
         vo.setFavorited(false);
         if (StpUtil.isLogin()) {
             Long userId = StpUtil.getLoginIdAsLong();
-            // 收藏检查由 FavoriteService 处理，此处默认 false
+            long favCount = favoriteMapper.selectCount(new LambdaQueryWrapper<Favorite>()
+                    .eq(Favorite::getUserId, userId)
+                    .eq(Favorite::getProductId, product.getId()));
+            vo.setFavorited(favCount > 0);
         }
 
         return vo;

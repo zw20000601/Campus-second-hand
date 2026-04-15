@@ -74,15 +74,16 @@ async function handleAvatarUpload(e: Event) {
   const formData = new FormData()
   formData.append('file', file)
   try {
-    const res = await userApi.uploadAvatar(formData)
-    form.value.avatar = res.data
-    if (userStore.user) {
-      userStore.user.avatar = res.data
-      localStorage.setItem('user', JSON.stringify(userStore.user))
-    }
+    // 1. 上传图片文件，获取 URL
+    const uploadRes = await userApi.uploadAvatarFile(formData)
+    const avatarUrl = uploadRes.data
+    // 2. 将 URL 持久化到用户记录
+    const userRes = await userApi.updateAvatarUrl(avatarUrl)
+    form.value.avatar = avatarUrl
+    userStore.updateUser(userRes.data)
     message.success('头像更新成功')
   } catch (err: any) {
-    message.error(err.message)
+    message.error(err.message || '头像上传失败')
   }
 }
 

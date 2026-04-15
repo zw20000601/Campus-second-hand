@@ -1,5 +1,5 @@
 import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
-import { useMessage } from 'naive-ui'
+import router from '@/router'
 import type { ApiResponse } from '@/types'
 
 const request = axios.create({
@@ -27,17 +27,16 @@ request.interceptors.response.use(
     if (res.code === 200) {
       return res as any
     }
-    // 未登录时跳转
+    // 未登录或 token 失效时，清除本地状态并跳转登录
     if (res.code === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+      import('@/stores/user').then(m => m.useUserStore().logout())
+      router.push('/login')
     }
     return Promise.reject(new Error(res.message || '请求失败'))
   },
   (error) => {
-    const message = error.response?.data?.message || error.message || '网络错误'
-    return Promise.reject(new Error(message))
+    const msg = error.response?.data?.message || error.message || '网络错误'
+    return Promise.reject(new Error(msg))
   },
 )
 

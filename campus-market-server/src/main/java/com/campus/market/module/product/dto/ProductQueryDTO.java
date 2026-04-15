@@ -39,4 +39,7 @@ public class ProductQueryDTO extends PageDTO {
 
     @Schema(description = "排序：newest=最新 price_asc=价格升序 price_desc=价格降序")
     private String sortBy = "newest";
+
+    @Schema(description = "商品状态过滤（仅用于我的发布）：0=待审核 1=已上架 2=已下架 3=已售出 4=审核拒绝")
+    private Integer status;
 }

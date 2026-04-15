@@ -89,6 +89,7 @@ async function loadProducts() {
     const res = await productApi.myProducts({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
+      status: statusFilter.value ?? undefined,
     })
     products.value = res.data.list
     total.value = res.data.total

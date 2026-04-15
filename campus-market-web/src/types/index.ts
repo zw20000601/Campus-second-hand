@@ -168,6 +168,7 @@ export interface ProductQueryDTO extends PageDTO {
   conditionLevel?: number
   tradeType?: number
   sortBy?: 'newest' | 'price_asc' | 'price_desc'
+  status?: number
 }
 
 // =====================================================

@@ -32,4 +32,10 @@ public class UserController {
     public R<UserVO> updateProfile(@RequestBody @Valid UpdateProfileDTO dto) {
         return R.ok(userService.updateProfile(dto));
     }
+
+    @Operation(summary = "更新头像")
+    @PutMapping("/avatar")
+    public R<UserVO> updateAvatar(@RequestParam String avatarUrl) {
+        return R.ok(userService.updateAvatar(avatarUrl));
+    }
 }
