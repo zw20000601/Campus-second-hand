@@ -108,12 +108,14 @@ async function loadData() {
   loading.value = true
   try {
     // 获取分类（直接从后端）
-    const [catRes, productRes] = await Promise.all([
+    const [catRes, productRes, noticeRes] = await Promise.all([
       fetch('/api/categories').then(r => r.json()),
       productApi.list({ pageNum: 1, pageSize: 8, sortBy: 'newest' }),
+      fetch('/api/notices?pageNum=1&pageSize=5').then(r => r.json()),
     ])
     categories.value = catRes.data?.slice(0, 10) || []
     products.value = productRes.data?.list || []
+    notices.value = noticeRes.data?.list || []
   } catch (e) {
     console.error(e)
   } finally {
