@@ -185,6 +185,7 @@ export interface MessageVO {
   userAvatar: string
   content: string
   createdAt: string
+  replies?: MessageVO[]
 }
 
 // =====================================================

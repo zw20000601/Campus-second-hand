@@ -152,8 +152,41 @@
             <div class="msg-header">
               <span class="msg-user">{{ msg.userNickname }}</span>
               <span class="msg-time">{{ formatDate(msg.createdAt) }}</span>
+              <n-button v-if="userStore.isLoggedIn" text size="tiny" style="margin-left: auto" @click="openReply(msg)">
+                {{ replyTo?.id === msg.id ? '收起' : '回复' }}
+              </n-button>
             </div>
             <div class="msg-text">{{ msg.content }}</div>
+
+            <!-- 回复列表 -->
+            <div v-if="msg.replies?.length" class="reply-list">
+              <div v-for="reply in msg.replies" :key="reply.id" class="reply-item">
+                <n-avatar :src="reply.userAvatar" round :size="28" />
+                <div class="reply-content">
+                  <div class="reply-header">
+                    <span class="reply-user">{{ reply.userNickname }}</span>
+                    <span class="reply-time">{{ formatDate(reply.createdAt) }}</span>
+                  </div>
+                  <div class="reply-text">{{ reply.content }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 行内回复输入框 -->
+            <div v-if="replyTo?.id === msg.id" class="reply-input-wrap">
+              <span class="reply-to-label">回复 @{{ replyTo.nickname }}：</span>
+              <n-input
+                v-model:value="replyContent"
+                type="textarea"
+                :rows="2"
+                placeholder="写下你的回复..."
+                :maxlength="200"
+              />
+              <div class="reply-input-actions">
+                <n-button size="small" @click="replyTo = null; replyContent = ''">取消</n-button>
+                <n-button type="primary" size="small" @click="submitReply(msg.id)">发送</n-button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -203,6 +236,8 @@ const currentImage = ref('')
 const messages = ref<MessageVO[]>([])
 const loadingMessages = ref(false)
 const newMessage = ref('')
+const replyTo = ref<{ id: number; nickname: string } | null>(null)
+const replyContent = ref('')
 const showReportModal = ref(false)
 const reportForm = ref({ reason: null as number | null, description: '' })
 const reportReasons = [
@@ -264,6 +299,28 @@ async function submitMessage() {
     newMessage.value = ''
     loadMessages()
     if (product.value) product.value.messageCount++
+  } catch (e: any) {
+    message.error(e.message)
+  }
+}
+
+function openReply(msg: MessageVO) {
+  if (replyTo.value?.id === msg.id) {
+    replyTo.value = null
+    replyContent.value = ''
+  } else {
+    replyTo.value = { id: msg.id, nickname: msg.userNickname }
+    replyContent.value = ''
+  }
+}
+
+async function submitReply(parentId: number) {
+  if (!replyContent.value.trim()) return
+  try {
+    await messageApi.publish(product.value!.id, replyContent.value, parentId)
+    replyTo.value = null
+    replyContent.value = ''
+    loadMessages()
   } catch (e: any) {
     message.error(e.message)
   }
@@ -386,11 +443,24 @@ onMounted(async () => {
 .input-wrap { flex: 1; }
 
 .message-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--color-border); }
-.msg-content { flex: 1; }
+.msg-content { flex: 1; min-width: 0; }
 .msg-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
 .msg-user { font-size: 13px; font-weight: 600; }
 .msg-time { font-size: 11px; color: var(--color-text-secondary); }
 .msg-text { font-size: 14px; color: var(--color-text); line-height: 1.6; }
+
+.reply-list { margin-top: 10px; border-left: 2px solid var(--color-border); padding-left: 12px; }
+.reply-item { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--color-border); }
+.reply-item:last-child { border-bottom: none; }
+.reply-content { flex: 1; min-width: 0; }
+.reply-header { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.reply-user { font-size: 12px; font-weight: 600; }
+.reply-time { font-size: 11px; color: var(--color-text-secondary); }
+.reply-text { font-size: 13px; color: var(--color-text); line-height: 1.5; }
+
+.reply-input-wrap { margin-top: 10px; background: var(--color-bg); border-radius: 6px; padding: 10px; }
+.reply-to-label { display: block; font-size: 12px; color: var(--color-primary); margin-bottom: 6px; }
+.reply-input-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
 
 .link { color: var(--color-primary); text-decoration: none; }
 </style>

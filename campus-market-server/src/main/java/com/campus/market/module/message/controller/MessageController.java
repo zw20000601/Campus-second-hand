@@ -22,6 +22,8 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,6 +55,20 @@ public class MessageController {
         List<MessageVO> voList = page.getRecords().stream()
                 .map(msg -> toVO(msg))
                 .collect(Collectors.toList());
+
+        // 批量查询当前商品所有二级回复，按 parentId 分组后挂载
+        List<ProductMessage> replyRecords = messageMapper.selectList(
+                new LambdaQueryWrapper<ProductMessage>()
+                        .eq(ProductMessage::getProductId, productId)
+                        .ne(ProductMessage::getParentId, 0L)
+                        .eq(ProductMessage::getStatus, 1)
+                        .orderByAsc(ProductMessage::getCreatedAt));
+
+        Map<Long, List<MessageVO>> replyMap = replyRecords.stream()
+                .map(this::toVO)
+                .collect(Collectors.groupingBy(MessageVO::getParentId));
+
+        voList.forEach(vo -> vo.setReplies(replyMap.getOrDefault(vo.getId(), Collections.emptyList())));
 
         return R.ok(PageVO.of(page, voList));
     }
@@ -118,5 +134,6 @@ public class MessageController {
         private String userAvatar;
         private String content;
         private java.time.LocalDateTime createdAt;
+        private List<MessageVO> replies = new ArrayList<>();
     }
 }
