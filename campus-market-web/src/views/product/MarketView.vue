@@ -36,8 +36,8 @@
                 v-for="(label, idx) in conditionLabels"
                 :key="idx"
                 class="filter-option"
-                :class="{ active: query.conditionLevel === idx }"
-                @click="query.conditionLevel = idx"
+                :class="{ active: query.conditionLevel === idx + 1 }"
+                @click="query.conditionLevel = idx + 1"
               >{{ label }}</div>
             </div>
           </div>
@@ -59,6 +59,7 @@
               <span>-</span>
               <n-input-number v-model:value="query.maxPrice" placeholder="最高" :min="0" size="small" />
             </div>
+            <n-button size="small" block style="margin-top: 8px" @click="search">确认</n-button>
           </div>
 
           <n-button block @click="resetFilter">重置筛选</n-button>
