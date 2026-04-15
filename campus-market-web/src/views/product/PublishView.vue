@@ -2,7 +2,7 @@
   <div class="publish-page">
     <div class="container page-padding">
       <div class="publish-card">
-        <h2 class="page-title">发布闲置</h2>
+        <h2 class="page-title">{{ isEdit ? '编辑商品' : '发布闲置' }}</h2>
 
         <n-form ref="formRef" :model="form" :rules="rules" label-placement="top" label-width="auto">
           <div class="form-row">
@@ -101,7 +101,7 @@
           <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
             <n-button @click="$router.back()">取消</n-button>
             <n-button type="primary" :loading="submitting" @click="handleSubmit">
-              发布商品
+              {{ isEdit ? '保存修改' : '发布商品' }}
             </n-button>
           </div>
         </n-form>
@@ -111,8 +111,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import {
   NForm, NFormItem, NInput, NInputNumber, NSelect, NButton, useMessage
 } from 'naive-ui'
@@ -120,7 +120,11 @@ import { productApi } from '@/api/modules/product'
 import { schoolApi } from '@/api/modules/school'
 
 const router = useRouter()
+const route = useRoute()
 const message = useMessage()
+
+const editId = ref<number | null>(null)
+const isEdit = computed(() => editId.value !== null)
 
 const formRef = ref()
 const submitting = ref(false)
@@ -205,7 +209,7 @@ async function handleSubmit() {
   try {
     await formRef.value?.validate()
     submitting.value = true
-    await productApi.publish({
+    const data = {
       title: form.value.title,
       description: form.value.description,
       price: form.value.price!,
@@ -218,11 +222,17 @@ async function handleSubmit() {
       tradeLocation: form.value.tradeLocation || undefined,
       coverImage: form.value.coverImage,
       images: uploadedImages.value,
-    })
-    message.success('发布成功！商品正在审核中...')
+    }
+    if (isEdit.value) {
+      await productApi.update(editId.value!, data)
+      message.success('保存成功！商品正在重新审核中...')
+    } else {
+      await productApi.publish(data)
+      message.success('发布成功！商品正在审核中...')
+    }
     router.push('/my/products')
   } catch (err: any) {
-    message.error(err.message || '发布失败')
+    message.error(err.message || (isEdit.value ? '保存失败' : '发布失败'))
   } finally {
     submitting.value = false
   }
@@ -235,6 +245,37 @@ onMounted(async () => {
   ])
   categoryOptions.value = (catRes.data || []).map((c: any) => ({ label: `${c.icon} ${c.name}`, value: c.id }))
   schoolOptions.value = schoolRes.data.map(s => ({ label: s.name, value: s.id }))
+
+  // 编辑模式：预填表单
+  const idParam = route.query.id
+  if (idParam) {
+    editId.value = Number(idParam)
+    try {
+      const res = await productApi.detail(editId.value)
+      const p = res.data
+      form.value.title = p.title
+      form.value.description = p.description || ''
+      form.value.price = Number(p.price)
+      form.value.originalPrice = p.originalPrice ? Number(p.originalPrice) : null
+      form.value.categoryId = p.categoryId ? Number(p.categoryId) : null
+      form.value.schoolId = p.schoolId ? Number(p.schoolId) : null
+      form.value.campusId = p.campusId ? Number(p.campusId) : null
+      form.value.conditionLevel = p.conditionLevel ?? null
+      form.value.tradeType = p.tradeType ?? null
+      form.value.tradeLocation = p.tradeLocation || ''
+      form.value.coverImage = p.coverImage || ''
+      uploadedImages.value = p.images?.length ? p.images : (p.coverImage ? [p.coverImage] : [])
+
+      // 如已选学校，加载校区列表
+      if (p.schoolId) {
+        const campusRes = await schoolApi.listCampuses(Number(p.schoolId))
+        campusOptions.value = campusRes.data.map(c => ({ label: c.name, value: c.id }))
+      }
+    } catch (err: any) {
+      message.error('加载商品信息失败')
+      router.push('/my/products')
+    }
+  }
 })
 </script>
 

@@ -39,6 +39,7 @@
           </div>
         </div>
         <div class="product-actions">
+          <n-button v-if="[0, 2, 4].includes(p.status)" size="small" type="primary" ghost @click="$router.push(`/publish?id=${p.id}`)">编辑</n-button>
           <n-button v-if="p.status === 1" size="small" @click="handleOffShelf(p.id)">下架</n-button>
           <n-button v-if="p.status === 1" size="small" type="success" @click="handleSold(p.id)">标记售出</n-button>
           <n-button size="small" type="error" ghost @click="handleDelete(p.id)">删除</n-button>
