@@ -5,6 +5,27 @@
         <!-- 左侧筛选 -->
         <aside class="filter-panel">
           <div class="filter-section">
+            <div class="filter-title">学校</div>
+            <n-select
+              v-model:value="query.schoolId"
+              :options="schools.map(s => ({ label: s.name, value: s.id }))"
+              placeholder="选择学校"
+              clearable
+              size="small"
+              @update:value="onSchoolChange"
+            />
+            <n-select
+              v-if="campuses.length"
+              v-model:value="query.campusId"
+              :options="campuses.map(c => ({ label: c.name, value: c.id }))"
+              placeholder="选择校区"
+              clearable
+              size="small"
+              style="margin-top: 8px"
+            />
+          </div>
+
+          <div class="filter-section">
             <div class="filter-title">商品分类</div>
             <div class="filter-options">
               <div
@@ -126,16 +147,19 @@
 import { ref, reactive, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import {
-  NInput, NButton, NInputNumber, NSkeleton, NEmpty, NPagination
+  NInput, NButton, NInputNumber, NSkeleton, NEmpty, NPagination, NSelect
 } from 'naive-ui'
 import { productApi } from '@/api/modules/product'
-import type { ProductCategory, ProductListVO, ProductQueryDTO } from '@/types'
+import { schoolApi } from '@/api/modules/school'
+import type { ProductCategory, ProductListVO, ProductQueryDTO, School, Campus } from '@/types'
 import { CONDITION_LABELS } from '@/types'
 import ProductCard from '@/components/common/ProductCard.vue'
 
 const route = useRoute()
 
 const categories = ref<ProductCategory[]>([])
+const schools = ref<School[]>([])
+const campuses = ref<Campus[]>([])
 const products = ref<ProductListVO[]>([])
 const loading = ref(false)
 const total = ref(0)
@@ -155,6 +179,8 @@ const query = reactive<ProductQueryDTO>({
   keyword: route.query.keyword as string || undefined,
   categoryId: route.query.categoryId ? Number(route.query.categoryId) : undefined,
   sortBy: 'newest',
+  schoolId: undefined,
+  campusId: undefined,
 })
 
 async function loadProducts() {
@@ -176,6 +202,17 @@ function search() {
   loadProducts()
 }
 
+async function onSchoolChange(id: number | null) {
+  query.campusId = undefined
+  campuses.value = []
+  if (id) {
+    const res = await schoolApi.listCampuses(id)
+    campuses.value = res.data || []
+  }
+  query.pageNum = 1
+  loadProducts()
+}
+
 function resetFilter() {
   query.categoryId = undefined
   query.conditionLevel = undefined
@@ -183,20 +220,27 @@ function resetFilter() {
   query.minPrice = undefined
   query.maxPrice = undefined
   query.sortBy = 'newest'
+  query.schoolId = undefined
+  query.campusId = undefined
+  campuses.value = []
   query.pageNum = 1
   loadProducts()
 }
 
 // 监听筛选条件变化自动搜索
 watch(
-  () => [query.categoryId, query.conditionLevel, query.tradeType, query.sortBy, query.pageNum],
+  () => [query.categoryId, query.conditionLevel, query.tradeType, query.sortBy, query.pageNum, query.campusId],
   () => loadProducts()
 )
 
 onMounted(async () => {
-  // 获取分类列表
-  const res = await fetch('/api/categories').then(r => r.json())
-  categories.value = res.data || []
+  // 获取分类列表和学校列表
+  const [catRes, schoolRes] = await Promise.all([
+    fetch('/api/categories').then(r => r.json()),
+    schoolApi.listSchools(),
+  ])
+  categories.value = catRes.data || []
+  schools.value = schoolRes.data || []
   loadProducts()
 })
 </script>
