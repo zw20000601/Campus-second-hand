@@ -31,9 +31,14 @@
     <!-- 公告 -->
     <section v-if="notices.length" class="notice-bar">
       <div class="container">
-        <n-alert type="info" :show-icon="false">
-          📢 {{ notices[0]?.title }}
-        </n-alert>
+        <div
+          v-for="n in notices"
+          :key="n.id"
+          class="notice-item"
+          @click="router.push(`/notice/${n.id}`)"
+        >
+          📢 {{ n.title }}
+        </div>
       </div>
     </section>
 
@@ -171,6 +176,19 @@ onMounted(loadData)
 .notice-bar {
   padding: 12px 0;
 }
+.notice-item {
+  padding: 8px 12px;
+  background: #e8f4fd;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 6px;
+}
+.notice-item:last-child { margin-bottom: 0; }
+.notice-item:hover { background: #d0eaf8; }
 
 .categories-section,
 .products-section {
