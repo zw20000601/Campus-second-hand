@@ -145,7 +145,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   NInput, NButton, NInputNumber, NSkeleton, NEmpty, NPagination, NSelect
 } from 'naive-ui'
@@ -156,6 +156,7 @@ import { CONDITION_LABELS } from '@/types'
 import ProductCard from '@/components/common/ProductCard.vue'
 
 const route = useRoute()
+const router = useRouter()
 
 const categories = ref<ProductCategory[]>([])
 const schools = ref<School[]>([])
@@ -214,6 +215,7 @@ async function onSchoolChange(id: number | null) {
 }
 
 function resetFilter() {
+  query.keyword = undefined
   query.categoryId = undefined
   query.conditionLevel = undefined
   query.tradeType = undefined
@@ -224,6 +226,7 @@ function resetFilter() {
   query.campusId = undefined
   campuses.value = []
   query.pageNum = 1
+  router.replace({ name: 'market' })
   loadProducts()
 }
 
