@@ -219,6 +219,7 @@ import {
   NSpin, NBreadcrumb, NBreadcrumbItem, NTag, NButton, NAlert,
   NAvatar, NInput, NModal, NForm, NFormItem, NSelect, NEmpty, useMessage
 } from 'naive-ui'
+import request from '@/api/request'
 import { productApi } from '@/api/modules/product'
 import { favoriteApi } from '@/api/modules/favorite'
 import { messageApi } from '@/api/modules/message'
@@ -329,17 +330,10 @@ async function submitReply(parentId: number) {
 async function submitReport() {
   if (!reportForm.value.reason) { message.warning('请选择举报原因'); return }
   try {
-    await fetch('/api/reports', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': localStorage.getItem('token') || '',
-      },
-      body: JSON.stringify({
-        productId: product.value?.id,
-        reason: reportForm.value.reason,
-        description: reportForm.value.description,
-      }),
+    await request.post('/reports', {
+      productId: product.value?.id,
+      reason: reportForm.value.reason,
+      description: reportForm.value.description,
     })
     message.success('举报已提交，我们会尽快处理')
     showReportModal.value = false
