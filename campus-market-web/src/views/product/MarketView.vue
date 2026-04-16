@@ -233,6 +233,16 @@ watch(
   () => loadProducts()
 )
 
+// 响应顶部搜索栏从同一页面发起的 keyword 变化（组件保活时 onMounted 不重跑）
+watch(
+  () => route.query.keyword as string | undefined,
+  (newKeyword) => {
+    query.keyword = newKeyword || undefined
+    query.pageNum = 1
+    loadProducts()
+  }
+)
+
 onMounted(async () => {
   // 获取分类列表和学校列表
   const [catRes, schoolRes] = await Promise.all([
