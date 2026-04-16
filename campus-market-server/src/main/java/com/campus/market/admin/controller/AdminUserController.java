@@ -1,5 +1,6 @@
 package com.campus.market.admin.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -67,6 +68,8 @@ public class AdminUserController {
         update.setId(id);
         update.setStatus(status);
         userMapper.updateById(update);
+        // 封禁时立即踢出用户 session，已登录用户下次请求收到 401 自动登出
+        if (status == 0) StpUtil.logout(id);
         return R.ok();
     }
 }
