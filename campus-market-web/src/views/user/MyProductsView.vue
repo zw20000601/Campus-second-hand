@@ -124,6 +124,7 @@ function handleDelete(id: number) {
     onPositiveClick: async () => {
       await productApi.delete(id)
       message.success('已删除')
+      if (products.value.length === 1 && pageNum.value > 1) pageNum.value--
       loadProducts()
     },
   })

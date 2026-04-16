@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { NForm, NFormItem, NInput, NButton, NSelect, useMessage } from 'naive-ui'
 import { authApi } from '@/api/modules/auth'
 import { schoolApi } from '@/api/modules/school'
@@ -73,6 +73,7 @@ import { useUserStore } from '@/stores/user'
 import type { School, Campus } from '@/types'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const message = useMessage()
 
@@ -124,7 +125,8 @@ async function handleRegister() {
     })
     userStore.setAuth(res.data.token, res.data.user)
     message.success('注册成功！')
-    router.push('/')
+    const redirect = route.query.redirect as string
+    router.push(redirect || '/')
   } catch (err: any) {
     message.error(err.message || '注册失败')
   } finally {

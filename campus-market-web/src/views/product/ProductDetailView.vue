@@ -322,6 +322,7 @@ async function submitReply(parentId: number) {
     replyTo.value = null
     replyContent.value = ''
     loadMessages()
+    if (product.value) product.value.messageCount++
   } catch (e: any) {
     message.error(e.message)
   }
