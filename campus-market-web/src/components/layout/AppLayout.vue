@@ -91,6 +91,12 @@ const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy5
 
 const userMenuOptions = [
   {
+    label: '个人资料',
+    key: 'my-profile',
+    icon: () => h(NIcon, null, { default: () => h(Person) }),
+  },
+  { type: 'divider', key: 'd1' },
+  {
     label: '我的发布',
     key: 'my-products',
     icon: () => h(NIcon, null, { default: () => h(Person) }),
@@ -100,7 +106,7 @@ const userMenuOptions = [
     key: 'my-favorites',
     icon: () => h(NIcon, null, { default: () => h(Heart) }),
   },
-  { type: 'divider', key: 'd1' },
+  { type: 'divider', key: 'd2' },
   {
     label: '退出登录',
     key: 'logout',
