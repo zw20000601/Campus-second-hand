@@ -40,6 +40,7 @@
             <n-descriptions-item label="交易地点" v-if="detail.tradeLocation">{{ detail.tradeLocation }}</n-descriptions-item>
             <n-descriptions-item label="浏览/收藏">{{ detail.viewCount }} / {{ detail.favoriteCount }}</n-descriptions-item>
             <n-descriptions-item label="发布时间">{{ detail.createdAt }}</n-descriptions-item>
+            <n-descriptions-item v-if="detail.auditRemark" label="拒绝原因">{{ detail.auditRemark }}</n-descriptions-item>
           </n-descriptions>
           <div class="detail-body" v-if="detail.description">
             <div class="detail-body-label">商品描述</div>
@@ -121,6 +122,7 @@ const columns = [
   { title: '价格', key: 'price', width: 80, render: (row: any) => `¥${row.price}` },
   { title: '发布者', key: 'userNickname', width: 100 },
   { title: '状态', key: 'status', width: 90, render: (row: any) => h(NTag, { type: STATUS_TYPES[row.status], size: 'small' }, () => STATUS_LABELS[row.status]) },
+  { title: '拒绝原因', key: 'auditRemark', width: 160, ellipsis: { tooltip: true }, render: (row: any) => row.auditRemark || '' },
   { title: '发布时间', key: 'createdAt', width: 160 },
   {
     title: '操作',
